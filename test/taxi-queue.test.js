@@ -1,27 +1,31 @@
 
 import assert from 'assert';
-import {joinQueue, queueLength, 
-		leaveQueue, joinTaxiQueue, 
-		taxiQueueLength} from '../taxi.sql.js'
+import {
+	joinQueue, queueLength,
+	leaveQueue, joinTaxiQueue,
+	taxiQueueLength, taxiDepart
+} from '../taxi.sql.js'
 
 import * as sqlite from 'sqlite';
 import sqlite3 from 'sqlite3';
 
-const  db = await sqlite.open({
-    filename:  './taxi_queue.db',
-    driver:  sqlite3.Database
+const db = await sqlite.open({
+	filename: './taxi_queue.db',
+	driver: sqlite3.Database
 });
 
 await db.migrate();
 
-describe('The taxi queue app', function() {
+describe('The taxi queue app', function () {
+	// set the timeout period for all tests to 10 seconds
+	this.timeout(10000);
 
 	this.beforeEach(async () => {
 		//
 		await db.exec(`update taxi_queue set passenger_queue_count = 0, taxi_queue_count = 0`)
 	})
 
-	it ('should allow people to join the queue', async function() {
+	it('should allow people to join the queue', async function () {
 
 		await joinQueue();
 		await joinQueue();
@@ -33,7 +37,7 @@ describe('The taxi queue app', function() {
 
 	});
 
-	it ('should allow people to leave the queue', async function() {
+	it('should allow people to leave the queue', async function () {
 
 		await joinQueue();
 		await joinQueue();
@@ -45,7 +49,7 @@ describe('The taxi queue app', function() {
 
 	});
 
-	it ('should not allow the people queue to be less than 0', async function() {
+	it('should not allow the people queue to be less than 0', async function () {
 
 		await joinQueue();
 		await joinQueue();
@@ -61,8 +65,8 @@ describe('The taxi queue app', function() {
 
 	});
 
-	it ('should allow taxis to join the queue', async function() {
-		
+	it('should allow taxis to join the queue', async function () {
+
 		await joinTaxiQueue();
 		await joinTaxiQueue();
 		await joinTaxiQueue();
@@ -71,7 +75,7 @@ describe('The taxi queue app', function() {
 
 	});
 
-	it ('should allow taxis to leave the queue if there is enough passengers queueing', async function() {
+	it('should allow taxis to leave the queue if there is enough passengers queueing', async function () {
 
 		await joinQueue(); // 1
 		await joinQueue();
@@ -85,9 +89,9 @@ describe('The taxi queue app', function() {
 		await joinQueue();
 		await joinQueue();
 		await joinQueue(); // 12
-		await joinQueue(); 
 		await joinQueue();
-		await joinQueue(); 
+		await joinQueue();
+		await joinQueue();
 
 		await joinTaxiQueue();
 		await joinTaxiQueue();
@@ -106,7 +110,7 @@ describe('The taxi queue app', function() {
 
 	});
 
-	it ('should not allow a taxi to leave the queue if there is not enough passengers queueing', async function() {
+	it('should not allow a taxi to leave the queue if there is not enough passengers queueing', async function () {
 
 		await joinQueue(); // 1
 		await joinQueue();
@@ -117,7 +121,7 @@ describe('The taxi queue app', function() {
 		await joinQueue();
 		await joinQueue();
 		await joinQueue();
-		await joinQueue();   
+		await joinQueue();
 		await joinQueue(); // 11 
 
 		await joinTaxiQueue();
@@ -132,12 +136,12 @@ describe('The taxi queue app', function() {
 		taxiDepart();
 
 		// data after a taxi departed
-		assert.equal(3, taxiQueueLength());
-		assert.equal(11, queueLength());
+		assert.equal(3, await taxiQueueLength());
+		assert.equal(11, await queueLength());
 
 	});
 
-	it ('should check that a taxi can not leave if the taxi queue is empty', async function() {
+	it('should check that a taxi can not leave if the taxi queue is empty', async function () {
 
 		await joinQueue(); // 1
 		await joinQueue();
@@ -151,9 +155,9 @@ describe('The taxi queue app', function() {
 		await joinQueue();
 		await joinQueue();
 		await joinQueue(); // 12
-		await joinQueue(); 
 		await joinQueue();
-		await joinQueue(); 
+		await joinQueue();
+		await joinQueue();
 
 		// data before a taxi departs
 		assert.equal(0, await taxiQueueLength());
@@ -161,10 +165,11 @@ describe('The taxi queue app', function() {
 
 		// this function call should do nothing as there is no taxis in the taxi queue
 		taxiDepart();
-		
+
 		// data after a taxi departed
-		assert.equal(0,await queueLength());
 		assert.equal(15, await queueLength());
+		assert.equal(0, await taxiQueueLength());
+		
 
 	});
 });
