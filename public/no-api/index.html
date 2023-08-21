@@ -28,7 +28,10 @@
 			<span class="passenger_queue_count count" x-text="passengers" ></span>
 			<button class="join_queue" x-on:click="joinQueue()">Join</button>
 			<button class="leave_queue" x-on:click="leaveQueue()">Leave</button>
-	
+			<div class="messages">
+				<span x-text="passMessage"></span>
+				<span x-text="passLeave"></span>
+				</div>
 		</div>
 	
 		<div class="section" >
@@ -38,6 +41,11 @@
 			<img src="../images/minivan.png" alt="" width="100">
 			<span class="taxi_queue_count count" x-text="taxis"></span>
 			<button class="join_taxi_queue" x-on:click="joinTaxiQueue()">Join queue</button>
+		
+			<div class="messages">
+				<span x-text="taxiJoin"></span>
+				</div>
+		
 		</div>
 	
 		<div class="section" >
@@ -49,6 +57,10 @@
 			<!-- <span class="taxi_queue_count count" >0</span> -->
 			<button class="depart" x-on:click="
 			taxiDepart()">Depart</button>
+
+			<div class="messages">
+				<span x-text="departMessage"></span>
+				</div>
 		</div>
 	
 

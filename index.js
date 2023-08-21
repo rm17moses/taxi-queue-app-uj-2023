@@ -54,18 +54,17 @@ app.post('/api/taxi/depart', async (req, res) => {
 
 // return the number of people in the queue
 app.get('/api/passenger/queue', async (req, res) => {
-    const passTotal = await queueLength();
 
     res.json({
-        queueCount : `${passTotal}`
+        queueCount : await queueLength()
     })
 });
 
 // return the number of taxis in the queue
 app.get('/api/taxi/queue', async (req, res) => {
-    await taxiQueueLength()
+   
     res.json({
-        queueCount : `${taxiTotal}`
+        queueCount : await taxiQueueLength()
     })
 });
 
